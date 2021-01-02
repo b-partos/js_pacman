@@ -15,65 +15,71 @@
 		const height = canvas.height = window.innerHeight;
 		const ctx = canvas.getContext('2d');
 		var runGame = true;
+		var pacman = {x:70, y:70};
+		var blocks = [];
 		<!-- alert('Main body ran'); -->
 
 		drawBackground();
-		drawPacman(70,70);
+		drawPacman();
 		
-		setTimeout(loop, 2000);
+		setTimeout(loop, 0);
 		
 		async function loop() {
 			d = 1;
+			initGame();
 			while (runGame ) {
 				drawBackground();
-				drawPacman(70 + 10*d++, 70);
-				await sleep(250);
+				<!-- pacman.x = pacman.x + 10; -->
+				drawPacman();
+				await sleep(25);
 			};
 		};
+		
+		function initGame() {
+			drawBackground();
+			createBlock(80, 80, 100, 100);
+			createBlock(80, 200, 100, 200);
+			createBlock(200, 80, 100, 200);
+			createBlock(200, 300, 220, 100);
+			createBlock(320, 80, 100, 200);
+		}
+		<!-- document.addEventListener("keypress", function onEvent(event) { -->
+			<!-- if (event.key === "ArrowLeft") { -->
+				<!-- alert('ArrowLeft pressed'); -->
+			<!-- } -->
+		<!-- }); -->
 		
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
 		
-		<!-- $(document).keyup(function(e) { -->
-			<!-- if (e.key === "Escape") { // escape key maps to keycode `27` -->
-				
-				<!-- runGame = false; -->
-				
-			<!-- } -->
-		<!-- }); -->
-		
-		<!-- canvas.addEventListener('keypress', function(e) { -->
-			<!-- if (e.key == "Escape") { -->
-				<!-- runGame = false; -->
-				<!-- alert('Escape pressed:'); -->
-			<!-- } -->
-		<!-- }); -->
 		
 		document.onkeydown = function(evt) {
 			evt = evt || window.event;
 			if (evt.keyCode == 27) {
 				runGame = false;
 			}
+			if (event.key === "ArrowRight") {
+				pacman.x += 10 
+			}
+			if (event.key === "ArrowLeft") {
+				pacman.x -= 10 
+			}
 		};
 		
-		function keyPress (e) {
-			if(e.key === "Escape") {
-				runGame = false;
-			}
-		}
+		function movePacmanLeft() {
+			let newPacman = {...pacman};
+			newPacman.x -= 10; 
+		};
+		
+		function checkIfPacmanCollides( newPacman) {
+			
+		};
+		
 		
 		function degToRad(degrees) {
 		  return degrees * Math.PI / 180;
 		};
-		
-		async function delayedGreeting() {
-			console.log("Hello");
-			await sleep(2000);
-			console.log("World!");
-			await sleep(2000);
-			console.log("Goodbye!");
-		}
 		
 		function drawBackground(){
 			ctx.fillStyle = 'rgb(0,255,0)';//green
@@ -85,19 +91,27 @@
 			ctx.fillStyle = 'rgb(0,255,0)';//green
 			ctx.fillRect(60,60,530,530);
 			
-			ctx.fillStyle = 'rgb(255, 0, 0)';
-			ctx.fillRect(80, 80, 100, 100);
-			ctx.fillRect(80, 200, 100, 200);
-			ctx.fillRect(200, 80, 100, 200);
-			ctx.fillRect(200, 300, 220, 100);
-			ctx.fillRect(320, 80, 100, 200);
+			drawBlocks();
 		};
 		
-		function drawPacman(x, y) {
+		function drawBlocks() {
+			blocks.map( block => {
+					ctx.fillStyle = 'rgb(255, 0, 0)';
+					ctx.fillRect(block.startX, block.startY, block.lenX, block.lenY);
+				}
+			);
+		};
+		
+		function createBlock(startX, startY, lenX, lenY) {
+			blocks = [...blocks, {startX:startX, startY:startY, lenX:lenX, lenY:lenY}];
+			console.log(`Block createad at ${startX}, ${startY}, ${lenX}, ${lenY} `);
+		};
+		
+		function drawPacman() {
 			ctx.fillStyle = 'yellow';
 			ctx.beginPath();
-			ctx.arc(x, y, 9, degToRad(-45), degToRad(45), true);
-			ctx.lineTo(x, y);
+			ctx.arc(pacman.x, pacman.y, 9, degToRad(-45), degToRad(45), true);
+			ctx.lineTo(pacman.x, pacman.y);
 			ctx.fill();
 		};
 		
