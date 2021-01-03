@@ -23,6 +23,7 @@
 		var runGame = true;
 		var pacman = {x:70, y:70};
 		var blocks = [];
+		var gameArea = [60,60,530,530];
 
 		drawBackground();
 		drawPacman();
@@ -74,7 +75,7 @@
 		
 		function checkAndMovePacman(moveFunction) {
 			let newPacman = moveFunction(pacman);
-			if (!checkIfPacmanCollides(newPacman)) {
+			if (!checkIfPacmanCollides(newPacman) && packmanIsInsideGameArea(newPacman)) {
 				pacman = newPacman;
 			}
 		}
@@ -84,31 +85,33 @@
 		};
 		
 		function packmanCollidesWithBlock(pman, block) {
-			console.log("Check called for block ", block);
 			let values = [[pman.x - 9, pman.y - 9],
 				[pman.x + 9, pman.y - 9],
 				[pman.x - 9, pman.y + 9],
 				[pman.x + 9, pman.y + 9]
 			];
-			console.log("Edges: ", values);
-			let result = values.reduce(
+			return values.reduce(
 				(any, current) => pointIsInRectangle(...current, block.startX, block.startY, block.lenX, block.lenY) || any, false);
-			console.log(result);
-			return result;
+		}
+		
+		function packmanIsInsideGameArea(pman) {
+			let values = [[pman.x - 9, pman.y - 9],
+				[pman.x + 9, pman.y - 9],
+				[pman.x - 9, pman.y + 9],
+				[pman.x + 9, pman.y + 9]
+			];
+			return values.reduce(
+				(any, current) => pointIsInRectangle(...current, gameArea[0], gameArea[1], gameArea[2]-gameArea[0], gameArea[3]-gameArea[1]) && any, true);
 		}
 		
 		function pointIsInRectangle(x, y, rectStartX, rectStartY, rectLenX, rectLenY) {
-			let values = [
+			let conditions = [
 				x > rectStartX,
 				x < rectStartX + rectLenX,
 				y > rectStartY,
 				y < rectStartY + rectLenY
 			];
-			console.log(values);
-			let result = values.reduce((any, current) => current && any, true);
-			console.log(result);
-			if (result) console.log(`Point ${[x,y]} is in rectangle ${[rectStartX, rectStartY, rectLenX, rectLenY]}`);
-			return result;
+			return conditions.reduce((any, current) => current && any, true);;
 		};
 		
 		
@@ -125,7 +128,7 @@
 			ctx.fillRect(50,50,550,550);
 			
 			ctx.fillStyle = 'rgb(0,255,0)';//green
-			ctx.fillRect(60,60,530,530);
+			ctx.fillRect(...gameArea);
 			-
 			drawBlocks();
 		};
