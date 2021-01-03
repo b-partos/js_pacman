@@ -25,8 +25,6 @@
 		var blocks = [];
 		var gameArea = [60,60,530,530];
 
-		drawBackground();
-		drawPacman();
 		
 		setTimeout(loop, 0);
 		
@@ -34,56 +32,90 @@
 			d = 1;
 			initGame();
 			while (runGame ) {
-				drawBackground();
-				drawPacman();
+				drawGame();
 				await sleep(25);
 			};
 		};
 		
+		/**
+		 * Initiates game state.
+		 */
 		function initGame() {
+			defineKeyEvents(document);
+			blocks = [...blocks, ...createBlocks()];
+		}
+
+		function drawGame() {
 			drawBackground();
-			createBlock(80, 80, 100, 100);
-			createBlock(80, 200, 100, 200);
-			createBlock(200, 80, 100, 200);
-			createBlock(200, 300, 220, 100);
-			createBlock(320, 80, 100, 200);
+			drawPacman();
+		}
+
+		/**
+		 * Creates block objects.
+		 */
+		function createBlocks() {
+			return [
+				createBlock(80, 80, 100, 100),
+				createBlock(80, 200, 100, 200),
+				createBlock(200, 80, 100, 200),
+				createBlock(200, 300, 220, 100),
+				createBlock(320, 80, 100, 200)
+			];
 		}
 		
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
 		
+		/**
+		 * Defines the key events.
+		 */
+		function defineKeyEvents(document) {
+			document.onkeydown = function(evt) {
+				evt = evt || window.event;
+				if (evt.keyCode == 27) {
+					runGame = false;
+				}
+				if (event.key === "ArrowRight") {
+					checkAndMovePacman(pman => {return  {...pman, x : (pman.x + 10)};});
+				}
+				if (event.key === "ArrowLeft") {
+					checkAndMovePacman(pman => {return  {...pman, x : (pman.x - 10)};});
+				}
+				if (event.key === "ArrowDown") {
+					checkAndMovePacman(pman => {return  {...pman, y : (pman.y + 10)};});
+				}
+				if (event.key === "ArrowUp") {
+					checkAndMovePacman(pman => {return  {...pman, y : (pman.y - 10)};});
+				}
+			};
+		}
 		
-		document.onkeydown = function(evt) {
-			evt = evt || window.event;
-			if (evt.keyCode == 27) {
-				runGame = false;
-			}
-			if (event.key === "ArrowRight") {
-				checkAndMovePacman(pman => {return  {...pman, x : (pman.x + 10)};});
-			}
-			if (event.key === "ArrowLeft") {
-				checkAndMovePacman(pman => {return  {...pman, x : (pman.x - 10)};});
-			}
-			if (event.key === "ArrowDown") {
-				checkAndMovePacman(pman => {return  {...pman, y : (pman.y + 10)};});
-			}
-			if (event.key === "ArrowUp") {
-				checkAndMovePacman(pman => {return  {...pman, y : (pman.y - 10)};});
-			}
-		};
-		
+		/**
+		 * Calculates pacmans new position using the move function supplied, then checks if the position is valid.
+		 * If the position is valid, the in game pacman position is updated.
+		 */
 		function checkAndMovePacman(moveFunction) {
 			let newPacman = moveFunction(pacman);
-			if (!checkIfPacmanCollides(newPacman) && packmanIsInsideGameArea(newPacman)) {
+			if (positionValid(newPacman)) {
 				pacman = newPacman;
 			}
 		}
+
+		function positionValid(pman) {
+			return !checkIfPacmanCollides(pman) && packmanIsInsideGameArea(pman);
+		}
 		
+		/**
+		 * Checks if the pacman position supplied falls inside any of the obstacle blocks.
+		 */
 		function checkIfPacmanCollides( newPacman) {
 			return blocks.map((block) => packmanCollidesWithBlock(newPacman, block) ).reduce((any, current) => current || any);
 		};
 		
+		/**
+		 * Checks if the rectangle containing the packman position supplied has any vertices which fall inside the block supplied.
+		 */
 		function packmanCollidesWithBlock(pman, block) {
 			let values = [[pman.x - 9, pman.y - 9],
 				[pman.x + 9, pman.y - 9],
@@ -94,6 +126,9 @@
 				(any, current) => pointIsInRectangle(...current, block.startX, block.startY, block.lenX, block.lenY) || any, false);
 		}
 		
+		/**
+		 * Checks if the pacman position supplied falls inside the game area.
+		 */
 		function packmanIsInsideGameArea(pman) {
 			let values = [[pman.x - 9, pman.y - 9],
 				[pman.x + 9, pman.y - 9],
@@ -104,6 +139,9 @@
 				(any, current) => pointIsInRectangle(...current, gameArea[0], gameArea[1], gameArea[2]-gameArea[0], gameArea[3]-gameArea[1]) && any, true);
 		}
 		
+		/**
+		 * Decides whether the point defined by the x and y parameters falls inside the rectangle defined.
+		 */
 		function pointIsInRectangle(x, y, rectStartX, rectStartY, rectLenX, rectLenY) {
 			let conditions = [
 				x > rectStartX,
@@ -120,6 +158,10 @@
 		  return degrees * Math.PI / 180;
 		};
 		
+		/**
+		 * Draws the game map.
+		 * @todo Refactor to use game state given as a parameter.
+		 */
 		function drawBackground(){
 			ctx.fillStyle = 'rgb(0,255,0)';//green
 			ctx.fillRect(0,0,width,height);
@@ -133,6 +175,10 @@
 			drawBlocks();
 		};
 		
+		/**
+		 * Draws the internal obstacle blocks on the game map.
+		 * @todo The function should accept game state as a parameter.
+		 */
 		function drawBlocks() {
 			blocks.map( block => {
 					ctx.fillStyle = 'rgb(255, 0, 0)';
@@ -141,11 +187,18 @@
 			);
 		};
 		
+		/**
+		 * Creates a block object, which is a rendered rectangle on the game map.
+		 */
 		function createBlock(startX, startY, lenX, lenY) {
-			blocks = [...blocks, {startX:startX, startY:startY, lenX:lenX, lenY:lenY}];
-			console.log(`Block createad at ${startX}, ${startY}, ${lenX}, ${lenY} `);
+			// return {startX:startX, startY:startY, lenX:lenX, lenY:lenY};
+			return {startX, startY, lenX, lenY};
 		};
 		
+		/**
+		 * Draws pacman on the screen. Should be called after drawing the game map.
+		 * @todo This method should be refactored to use the game state as a parameter instead of a global variable.
+		 */
 		function drawPacman() {
 			ctx.fillStyle = 'yellow';
 			ctx.beginPath();
