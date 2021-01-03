@@ -65,7 +65,7 @@
 				pacman.x -= 10 
 			}
 			if (event.key === "ArrowDown") {
-				console.log("Left pressed");
+				console.log("Down pressed");
 				movePacmanDown();
 			}
 		};
@@ -75,13 +75,18 @@
 			if (!checkIfPacmanCollides(newPacman)) {
 				newPacman.x -= 10; 
 			}
+			
 		};
 		
 		function movePacmanDown() {
 			let newPacman = {...pacman};
-			if (!checkIfPacmanCollides(newPacman)) {
+			let collides = checkIfPacmanCollides(newPacman);
+			console.log("Colliedes: ", collides);
+			if (!collides) {
+				console.log("Go down")
 				newPacman.y += 10; 
 			}
+			pacman = newPacman;
 		};
 		
 		function checkIfPacmanCollides( newPacman) {
