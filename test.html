@@ -23,7 +23,6 @@
 		var runGame = true;
 		var pacman = {x:70, y:70};
 		var blocks = [];
-		<!-- alert('Main body ran'); -->
 
 		drawBackground();
 		drawPacman();
@@ -35,7 +34,6 @@
 			initGame();
 			while (runGame ) {
 				drawBackground();
-				<!-- pacman.x = pacman.x + 10; -->
 				drawPacman();
 				await sleep(25);
 			};
@@ -66,22 +64,57 @@
 			if (event.key === "ArrowLeft") {
 				pacman.x -= 10 
 			}
+			if (event.key === "ArrowDown") {
+				console.log("Left pressed");
+				movePacmanDown();
+			}
 		};
 		
 		function movePacmanLeft() {
 			let newPacman = {...pacman};
-			newPacman.x -= 10; 
+			if (!checkIfPacmanCollides(newPacman)) {
+				newPacman.x -= 10; 
+			}
+		};
+		
+		function movePacmanDown() {
+			let newPacman = {...pacman};
+			if (!checkIfPacmanCollides(newPacman)) {
+				newPacman.y += 10; 
+			}
 		};
 		
 		function checkIfPacmanCollides( newPacman) {
-			
+			return blocks.map((block) => packmanCollidesWithBlock(block) ).reduce((any, current) => current || any);
 		};
 		
 		function packmanCollidesWithBlock(block) {
-			<!-- return block.x > (pacman.x + 9) || -->
+			console.log("Check called");
+			let values = [[pacman.x - 9, pacman.y - 9],
+				[pacman.x + 9, pacman.y - 9],
+				[pacman.x - 9, pacman.y + 9],
+				[pacman.x + 9, pacman.y + 9]
+			];
+			console.log(values);
+			let result = values.reduce(
+				(any, current) => pointIsInRectangle(...current, block.startX, block.startY, block.lenX, block.lenY) && any, true);
+			console.log(result);
+			return result;
 		}
 		
-		function 
+		function pointIsInRectangle(x, y, rectStartX, rectStartY, rectLenX, rectLenY) {
+			let values = [
+				x > rectStartX,
+				x < rectStartX + rectLenX,
+				y > rectStartY,
+				y < rectStartY + rectLenY
+			];
+			console.log(values);
+			let result = values.reduce((any, current) => current && any, true);
+			console.log(result);
+			return result;
+		};
+		
 		
 		
 		function degToRad(degrees) {
@@ -97,7 +130,7 @@
 			
 			ctx.fillStyle = 'rgb(0,255,0)';//green
 			ctx.fillRect(60,60,530,530);
-			
+			-
 			drawBlocks();
 		};
 		
