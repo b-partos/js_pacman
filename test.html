@@ -80,15 +80,15 @@
 		}
 		
 		function checkIfPacmanCollides( newPacman) {
-			return blocks.map((block) => packmanCollidesWithBlock(block) ).reduce((any, current) => current || any);
+			return blocks.map((block) => packmanCollidesWithBlock(newPacman, block) ).reduce((any, current) => current || any);
 		};
 		
-		function packmanCollidesWithBlock(block) {
+		function packmanCollidesWithBlock(pman, block) {
 			console.log("Check called for block ", block);
-			let values = [[pacman.x - 9, pacman.y - 9],
-				[pacman.x + 9, pacman.y - 9],
-				[pacman.x - 9, pacman.y + 9],
-				[pacman.x + 9, pacman.y + 9]
+			let values = [[pman.x - 9, pman.y - 9],
+				[pman.x + 9, pman.y - 9],
+				[pman.x - 9, pman.y + 9],
+				[pman.x + 9, pman.y + 9]
 			];
 			console.log("Edges: ", values);
 			let result = values.reduce(
@@ -105,8 +105,9 @@
 				y < rectStartY + rectLenY
 			];
 			console.log(values);
-			let result = values.reduce((any, current) => current || any, false);
+			let result = values.reduce((any, current) => current && any, true);
 			console.log(result);
+			if (result) console.log(`Point ${[x,y]} is in rectangle ${[rectStartX, rectStartY, rectLenX, rectLenY]}`);
 			return result;
 		};
 		
