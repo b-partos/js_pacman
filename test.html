@@ -59,50 +59,40 @@
 				runGame = false;
 			}
 			if (event.key === "ArrowRight") {
-				pacman.x += 10 
+				checkAndMovePacman(pman => {return  {...pman, x : (pman.x + 10)};});
 			}
 			if (event.key === "ArrowLeft") {
-				pacman.x -= 10 
+				checkAndMovePacman(pman => {return  {...pman, x : (pman.x - 10)};});
 			}
 			if (event.key === "ArrowDown") {
-				console.log("Down pressed");
-				movePacmanDown();
+				checkAndMovePacman(pman => {return  {...pman, y : (pman.y + 10)};});
+			}
+			if (event.key === "ArrowUp") {
+				checkAndMovePacman(pman => {return  {...pman, y : (pman.y - 10)};});
 			}
 		};
 		
-		function movePacmanLeft() {
-			let newPacman = {...pacman};
+		function checkAndMovePacman(moveFunction) {
+			let newPacman = moveFunction(pacman);
 			if (!checkIfPacmanCollides(newPacman)) {
-				newPacman.x -= 10; 
+				pacman = newPacman;
 			}
-			
-		};
-		
-		function movePacmanDown() {
-			let newPacman = {...pacman};
-			let collides = checkIfPacmanCollides(newPacman);
-			console.log("Colliedes: ", collides);
-			if (!collides) {
-				console.log("Go down")
-				newPacman.y += 10; 
-			}
-			pacman = newPacman;
-		};
+		}
 		
 		function checkIfPacmanCollides( newPacman) {
 			return blocks.map((block) => packmanCollidesWithBlock(block) ).reduce((any, current) => current || any);
 		};
 		
 		function packmanCollidesWithBlock(block) {
-			console.log("Check called");
+			console.log("Check called for block ", block);
 			let values = [[pacman.x - 9, pacman.y - 9],
 				[pacman.x + 9, pacman.y - 9],
 				[pacman.x - 9, pacman.y + 9],
 				[pacman.x + 9, pacman.y + 9]
 			];
-			console.log(values);
+			console.log("Edges: ", values);
 			let result = values.reduce(
-				(any, current) => pointIsInRectangle(...current, block.startX, block.startY, block.lenX, block.lenY) && any, true);
+				(any, current) => pointIsInRectangle(...current, block.startX, block.startY, block.lenX, block.lenY) || any, false);
 			console.log(result);
 			return result;
 		}
@@ -115,7 +105,7 @@
 				y < rectStartY + rectLenY
 			];
 			console.log(values);
-			let result = values.reduce((any, current) => current && any, true);
+			let result = values.reduce((any, current) => current || any, false);
 			console.log(result);
 			return result;
 		};
